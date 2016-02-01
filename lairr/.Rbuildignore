@@ -1,0 +1,6 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^data-excluded$
+^data-raw$
+^analysis$
+^output$
