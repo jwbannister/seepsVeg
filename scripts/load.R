@@ -16,10 +16,10 @@ pixels_df <- dplyr::left_join(feid_df, dplyr::select(zones_df, -objectid), by="f
 pixels_df$x <- round(pixels_df$x, 1)
 pixels_df$y <- round(pixels_df$y, 1)
 
-data_years <- c(1984:2014)
+data_years <- c(1984:2015)
 files <- c()
-for (i in data_years[29]){
-  nxt <- paste0("./data-raw/yearly_lai/table_",
+for (i in data_years){
+  nxt <- paste0("./data-raw/table_",
                 as.character(i), ".dbf")
   files <- c(files, nxt)
 }
