@@ -32,7 +32,7 @@ apply_quant <- function(data, cdf_years=year_index){
     flush.console()
     temp <- dplyr::filter(data, feid==id_index[j])
     for (k in 1:length(year_index)){
-      xval_years <- cdf_years[cdf_years!=year_index[k]]
+     xval_years <- cdf_years[cdf_years!=year_index[k]]
       kernel_ecdf <- build_ecdf_df(data=dplyr::filter(temp, year %in% xval_years))
       if (is.na(kernel_ecdf)) {
         quant_df[j, k+1] <- NA
