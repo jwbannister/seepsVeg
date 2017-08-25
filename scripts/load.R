@@ -1,9 +1,5 @@
 devtools::load_all()
 
-# ALL DATA-RAW NOW STORED ON DROPBOX!
-# load functions must be changed to access raw data files from dropbox.
-# files too large to version control with github.
-
 feid_spatial <- rgdal::readOGR("./data-raw/FEID_Locations.gdb",
                                "SS_extent_30mGrid_v2_WGS84_centroid_subset")
 feid_df <- data.frame(feid=feid_spatial$FEID, x=feid_spatial@coords[ , 1],
@@ -16,7 +12,7 @@ pixels_df <- dplyr::left_join(feid_df, dplyr::select(zones_df, -objectid), by="f
 pixels_df$x <- round(pixels_df$x, 1)
 pixels_df$y <- round(pixels_df$y, 1)
 
-data_years <- c(1984:2015)
+data_years <- c(1984:2014)
 files <- c()
 for (i in data_years){
   nxt <- paste0("./data-raw/table_",
@@ -27,6 +23,11 @@ lai_df <- load_dbfs(files)
 colnames(lai_df) <- tolower(colnames(lai_df))
 lai_df[lai_df==-9999] <- NA
 colnames(lai_df)[2:ncol(lai_df)] <- substring(colnames(lai_df)[2:ncol(lai_df)], 2)
+
+df_2015 <- read.csv("./data-raw/table_2015.csv")
+colnames(df_2015) <- tolower(colnames(df_2015))
+colnames(df_2015)[2:31] <- gsub("d", "", colnames(df_2015)[2:31])
+lai_df <- dplyr::inner_join(lai_df, df_2015, by="feid")
 
 split_lai <- split_df(lai_df, 100)
 split_lai <- lapply(split_lai, reshape2::melt, id.vars=c("feid"),
