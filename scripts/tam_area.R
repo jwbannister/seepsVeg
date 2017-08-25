@@ -14,25 +14,33 @@ tam_summary <- feid_df %>% gather(year, class, f1985:f2015) %>%
               tam.ratio=sum(class=='123')/length(class))
 
 tam_summary <- tam_summary %>% filter(!is.na(name))
-tam_summary$quant.score <- rep(NA, nrow(tam_summary))
+tam_summary$quant <- rep(NA, nrow(tam_summary))
 tam_summary$tmp.id <- seq(1, nrow(tam_summary), 1)
 for (i in unique(tam_summary$name)){
     tmp_df <- tam_summary[tam_summary$name==i & !is.na(tam_summary$name), ]
     for (j in tmp_df$tmp.id){
         kernel_ecdf <- build_ecdf_area(df1=filter(tmp_df, tmp.id!=j), 
                                        data_col=5)
-        tam_summary[tam_summary$tmp.id==j, ]$quant.score <- 
+        tam_summary[tam_summary$tmp.id==j, ]$quant <- 
             kernel_ecdf$Fhat[which.min(abs(kernel_ecdf$x - 
                                            tmp_df[tmp_df$tmp.id==j, ][[5]]))]
     }
 }
-tam_quant <- area_quantile(tam_summary) 
-write.csv(tam_quant, file="~/Desktop/tam_quantiles.csv", row.names=F)
+tam_summary$year <- as.integer(gsub("f", "", tam_summary$year))
+tam_wide_quant <- tam_summary %>% select(name, year, quant) %>% 
+    spread(year, quant)
+tam_wide_area <- tam_summary %>% select(name, year, tam.ratio) %>% 
+    spread(year, tam.ratio)
+write.csv(tam_wide_quant, file="~/Desktop/output/tam_quant.csv", row.names=F)
+write.csv(tam_wide_area, file="~/Desktop/output/tam_prcnt_area.csv", row.names=F)
 
+year_index <- unique(tam_summary$year)
 
 split_tam <- vector(mode="list", length=1)
-split_tam[[1]] <- tam_quant
-streak_list <- score_low_streak(split_tam, threshold=0.1, id_col="area")
-split_streak <- lapply(streak_list, reshape2::melt, id.vars=c("feid"),
-                    variable.name="year", value.name="streak")
-save(split_streak, file="./data-analysis/streak.RData")
+split_tam[[1]] <- tam_summary
+streak_df_0.1 <- score_low_streak(split_tam, threshold=0.1, id_col="name")[[1]]
+write.csv(streak_df_0.1, file="~/Desktop/output/tam_streak_01.csv", row.names=F)
+streak_df_0.2 <- score_low_streak(split_tam, threshold=0.2, id_col="name")[[1]]
+write.csv(streak_df_0.2, file="~/Desktop/output/tam_streak_02.csv", row.names=F)
+streak_df_0.3 <- score_low_streak(split_tam, threshold=0.3, id_col="name")[[1]]
+write.csv(streak_df_0.3, file="~/Desktop/output/tam_streak_03.csv", row.names=F)
