@@ -128,16 +128,16 @@ xval_quantile <- function(data, cdf_years=year_index){
   quant_list
 }
 
-score_low_streak <- function(data, threshold){
+score_low_streak <- function(data, threshold, id_col="feid"){
   streak_list <- list()
   for (i in 1:length(data)){
     print(paste0(i, "/", length(data)))
-    id_index <- unique(data[[i]]$feid)
+    id_index <- unique(data[[i]][[id_col]])
     streak_df <- data.frame(matrix(NA, nrow=length(id_index), ncol=length(year_index) + 1))
-    colnames(streak_df) <- c("feid", year_index)
-    streak_df$feid <- id_index
+    colnames(streak_df) <- c(id_col, year_index)
+    streak_df[[id_col]] <- id_index
     for (j in 1:length(id_index)){
-      temp <- dplyr::filter(data[[i]], feid==id_index[j])
+      temp <- data[[i]][data[[i]][[id_col]]==id_index[j], ]
       temp$year <- as.numeric(temp$year)
       temp <- temp[sort.int(temp$year, index.return=TRUE)$ix, ]
       for (k in 1:length(year_index)){

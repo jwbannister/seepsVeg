@@ -29,3 +29,10 @@ for (i in unique(tam_summary$name)){
 tam_quant <- area_quantile(tam_summary) 
 write.csv(tam_quant, file="~/Desktop/tam_quantiles.csv", row.names=F)
 
+
+split_tam <- vector(mode="list", length=1)
+split_tam[[1]] <- tam_quant
+streak_list <- score_low_streak(split_tam, threshold=0.1, id_col="area")
+split_streak <- lapply(streak_list, reshape2::melt, id.vars=c("feid"),
+                    variable.name="year", value.name="streak")
+save(split_streak, file="./data-analysis/streak.RData")
